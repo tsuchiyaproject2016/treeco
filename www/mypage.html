@@ -11,6 +11,83 @@
     <script src="js/ncmb-latest.min.js"></script>
     <script src="js/app.js"></script>
     <script src="js/cssua.min.js"></script>
+    <script>
+    //投稿した親作品
+    $(function(){
+    var Taichel = ncmb.DataStore("Taichel");
+    
+    var user = ncmb.User.getCurrentUser().handlename;
+
+    Taichel.equalTo("Contributor" ,user)
+            .order("createDate",true)
+            .fetchAll()
+            .then(function(results){
+            for (var i = 0; i < results.length; i++) {
+              var object = results[i];
+              var title = object.noveltitle;
+              var cont = object.Contributor;
+              var novel = object.novel;
+              var id = object.objectId;
+              document.getElementById("myPnovel").innerHTML+="<a href='novels.html?"+novel+'&'+title+'&'+id+"'>"+title+"</a>"+"<br>";
+            }
+              })
+              .catch(function(err){
+                console.log("読み込めませんでした\n"+err);
+              });
+});
+    </script>
+    <script>
+    //投稿した子作品
+    $(function(){
+    var Taichel_jr = ncmb.DataStore("Taichel_jr");
+    
+    var user = ncmb.User.getCurrentUser().handlename;
+
+    Taichel_jr.equalTo("Contributor" ,user)
+            .order("createDate",true)
+            .fetchAll()
+            .then(function(results){
+            for (var i = 0; i < results.length; i++) {
+              var object = results[i];
+              var title = object.noveltitle;
+              var cont = object.Contributor;
+              var novel = object.novel;
+              var id = object.objectId;
+              var A_id = object.A_parentId;
+              document.getElementById("myCnovel").innerHTML+="<a href='c_novels.html?"+novel+'&'+title+'&'+id+'&'+A_id+"'>"+title+"</a>"+"<br>";
+            }
+              })
+              .catch(function(err){
+                console.log("読み込めませんでした\n"+err);
+              });
+});
+    </script>
+    <script>
+    //ブックマーク表示
+    $(function(){
+    var Bookmark = ncmb.DataStore("Bookmark");
+    var Taichel = ncmb.DataStore("Taichel");
+    
+    var user = ncmb.User.getCurrentUser().userName;
+    
+    Bookmark.equalTo("userName" ,user)
+            .order("createDate",true)
+            .fetchAll()
+            .then(function(results){
+            for (var i = 0; i < results.length; i++) {
+              var object = results[i];
+              var title = object.noveltitle;
+              var cont = object.Contributor;
+              var novel = object.novel;
+              var id = object.novelId;
+              document.getElementById("Bookmark").innerHTML+="<a href='novels.html?"+novel+'&'+title+'&'+id+"'>"+title+"</a>"+"<br>";
+            }
+              })
+              .catch(function(err){
+                console.log("読み込めませんでした\n"+err);
+              });
+});
+    </script>
 </head>
 
 <body>
@@ -34,6 +111,13 @@
                 </ons-toolbar-button>
             </div>
         </ons-toolbar> 
+        
+        <h3>親作品</h3>
+        <div id="myPnovel"></div>
+        <h3>子作品</h3>
+        <div id="myCnovel"></div>
+        <h3>ブックマーク</h3>
+        <div id="Bookmark"></div>
         
         <ons-button id="name_change">ネーム変更</ons-button>  
         <ons-button id="YesBtn_logout">ログアウト</ons-button>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <meta http-equiv="Content-Security-Policy" content="default-src *; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+    <meta http-equiv="Content-Security-Policy" content="default-src * data:; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
     <link rel="stylesheet" href="components/loader.css">
     <link rel="stylesheet" href="css/styles.css"> 
     <script src="components/loader.js"></script>
@@ -11,16 +11,86 @@
     <script src="js/ncmb-latest.min.js"></script>
     <script src="js/app.js"></script>
     <script src="js/cssua.min.js"></script>
+    <script>
+        function onDiviceReady() {
+  
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var dataUrl = reader.result;
+    document.getElementById("image").src = dataUrl;
+  }
+  
+  // ファイルを選択したら実行
+  var photo = document.getElementById("photo");
+  photo.addEventListener('change', function(e) {
+    e.preventDefault();
+    var file = e.target.files[0];
+    document.getElementById("filename").value = file.name
+    reader.readAsDataURL(file);
+  }, false);
+  
+  // ファイルアップロード
+  var submit = document.getElementById("submit");
+  submit.addEventListener("click", function(e) {
+    e.preventDefault();
+    // ファイル名、ファイルデータを取得
+    var fileName = document.getElementById("filename").value;
+    var fileData = dataURItoBlob(document.getElementById("image").src);
+    
+    // アップロード
+    ncmb.File.upload(fileName, fileData)
+      .then(function(res) {
+        console.log(res);
+      })
+      .catch(function(err) {
+        console.error(err);
+      })
+  }, false)
+  
+  // ファイルダウンロード
+  var view = document.getElementById("view");
+  view.addEventListener("click", function(e) {
+    e.preventDefault();
+    // ファイル名を取得
+    var fileName = document.getElementById("filename").value;
+    
+    // ダウンロード（バイナリなのでblobを指定）
+    ncmb.File.download(fileName, "blob")
+      .then(function(blob) {
+        // ファイルリーダーにデータを渡す
+        reader.readAsDataURL(blob);
+      })
+      .catch(function(err) {
+        console.error(err);
+      })
+  }, false);
+}
 
-    <link rel="stylesheet" href="css/posting.css">
+// dataURIをBlobに変換
+function dataURItoBlob(dataURI) {
+    var byteString;
+    if (dataURI.split(',')[0].indexOf('base64') >= 0)
+        byteString = atob(dataURI.split(',')[1]);
+    else
+        byteString = unescape(dataURI.split(',')[1]);
+    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+    var ia = new Uint8Array(byteString.length);
+    for (var i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ia], {type:mimeString});
+}
+
+document.addEventListener("deviceready", onDiviceReady, false);
+    </script>
 </head>
 
 <body>
 <div class="main">
 
-<ons-page>
     <ons-sliding-menu var="app.menu" main-page="homepage.html" menu-page="menu.html" max-slide-distance="200px" type="reveal" side="right"></ons-sliding-menu>
     <ons-template id="homepage.html">
+        <ons-page modifier="material">
         <ons-toolbar modifier="material">
             <div class="center">
                 <font color="white">
@@ -37,47 +107,24 @@
             </div>
         </ons-toolbar>
         
-      <ons-list modifier="inset" style="margin-top: 10px">
-      <!--
-        <ons-list-item class="to-wrapper">
-          <ons-row>
-            <ons-col width="52px">
-              <img src="images/profile-image-02.png" width="42" class="to-image">
-            </ons-col>
-            <ons-col>
-              <div class="to-name">Graham</div>
-              <div class="to-email">@graham</div>
-            </ons-col>
-          </ons-row>
-        </ons-list-item>
-        -->
-        <ons-list-item>
-          <input type="text" id="title" class="text-input text-input--transparent" placeholder="タイトル" style="width: 100%">
-        </ons-list-item>
+        <h3>タイトル</h3>
+        <input type="text" id="title">
+        <h3>内容</h3>
+        <textarea id="novel" name="contents" rows=15 cols=40></textarea>
+        </br>
+        <ons-button id="newLine">改行</ons-button> 
+        <ons-button id="posting">投稿</ons-button>
         
-        <ons-list-item>
-          <textarea id="novel" name="contents" class="textarea textarea--transparent" placeholder="本文" style="width: 100%; height: 350px;"></textarea>
-        </ons-list-item>
-        
-        <!--
-        <ons-list-item modifier="chevron tappable">
-          <ons-icon icon="fa-tag" style="opacity:0.2"></ons-icon>
-        </ons-list-item>
-        -->
-        
-      </ons-list>
-      
-      <div style="padding: 10px 9px">
-        <ons-button id="newLine" modifier="large" style="margin: 0 auto;">
-          改行
-        </ons-button>
-        <ons-button id="posting" modifier="large" style="margin: 0 auto;">
-          投稿
-        </ons-button>
-      </div>
-      
+        <input type="file" accept="image/jpeg" id="photo" />
+    
+    <img src="" id="image" width="200" />
+    
+    <input type="text" id="filename" value="" /><br />
+    <input type="submit" value="送信" id="submit" /><br />
+    <input type="submit" value="画像表示" id="view" />
+    </ons-page>   
     </ons-template>
-</ons-page>
+
 
 <ons-template id="menu.html">
   <ons-list>
@@ -91,9 +138,9 @@
             マイページ
         </ons-list-item>
     </a>
-    <a href="index.html" style="text-decoration:none">
+    <a href="posting.html" style="text-decoration:none">
         <ons-list-item modifier="chevron" onclick="menu.setMainPage('index.html', {closeMenu: true})">
-            禁書目録？
+            親作品投稿
         </ons-list-item>
     </a>
     <ons-list-item modifier="chevron" id="YesBtn_logout">
@@ -101,6 +148,7 @@
     </ons-list-item>
   </ons-list>
 </ons-template>
+
 
 </div>
 </body>

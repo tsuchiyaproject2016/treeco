@@ -10,7 +10,7 @@ $(function() {
   $("#posting").click(onPosting);
   $("#c_posting").click(onC_posting);
   $("#evaluationBtn").click(onEvaluation);
-  //$("#reration").click(onReration);
+  $("#c_evaluationBtn").click(onC_evaluation);
   //$("#c_novelList").html(onC_novelList);
   $("#YesBtn_logout").click(onLogoutBtn);
   $("#password_change").click(onPasswordChange);
@@ -18,7 +18,24 @@ $(function() {
   $("#no_search").click(onNosearch);
   $("#newLine").click(onNewline);
   $("#c_newLine").click(onC_newline);
-         });
+  $("#bookmark").click(onBookmark);
+  //親作品投稿ボタン
+  $('#title,#novel').bind('keydown keyup keypress change', function() {
+        if ($('#title').val().length > 0 && $('#novel').val().length > 0) {
+            $('#posting').removeAttr('disabled');
+        } else {
+          $('#posting').attr('disabled', 'disabled'); 
+    	}
+	});
+  //子作品投稿ボタン
+    $('#c_title,#c_novel').bind('keydown keyup keypress change', function() {
+        if ($('#c_title').val().length > 0 && $('#c_novel').val().length > 0) {
+            $('#c_posting').removeAttr('disabled');
+        } else {
+          $('#c_posting').attr('disabled', 'disabled'); 
+        }
+    });
+  });
 });
 
 //----------------------------------USER MANAGEMENT-------------------------------------//
@@ -104,15 +121,6 @@ $(function() {
     //投稿関連
     $('#posting').attr('disabled', 'disabled');
     $('#c_posting').attr('disabled', 'disabled');
-    
-    //親作品投稿ボタン
-        $('#title,#novel').bind('keydown keyup keypress change', function() {
-        if ($('#title').val().length > 0 && $('#novel').val().length > 0) {
-            $('#posting').removeAttr('disabled');
-    	} else {
-    	  $('#posting').attr('disabled', 'disabled'); 
-		}
-	});
          
     //ID,PASS,メール入力
 	$('#reg_username,#reg_handlename,#reg_password,#reg_mail').bind('keydown keyup keypress change', function() {
@@ -122,16 +130,6 @@ $(function() {
     	  $('#RegisterBtn').attr('disabled', 'disabled');  
 		}
 	});    
-    
-    //子作品投稿ボタン
-    $('#c_title,#c_novel').bind('keydown keyup keypress change', function() {
-        if ($('#c_title').val().length > 0 && $('#c_novel').val().length > 0) {
-            $('#c_posting').removeAttr('disabled');
-        } else {
-          $('#c_posting').attr('disabled', 'disabled'); 
-    	}
-    });
-    
 });
 //----------------------------------DATA STORE-------------------------------------//
 //親作品投稿
@@ -225,6 +223,30 @@ function onNosearch(){
           });
 };
 
+//親作品評価順表示
+$(function(){
+var Taichel = ncmb.DataStore("Taichel");
+var Taichel_jr = ncmb.DataStore("Taichel_jr");
+
+Taichel.order("createDate",true)
+       .limit(3)
+       .fetchAll()
+       .then(function(results){
+            for (var i = 0; i < results.length; i++) {
+              var object = results[i];
+              var title = object.noveltitle;
+              var cont = object.Contributor;
+              var novel = object.novel;
+              var id = object.objectId;
+              document.getElementById("e_novelList").innerHTML+="<a href='novels.html?"+novel+'&'+title+'&'+id+"'>"+title+"</a>"+"<br>";
+            }
+          })
+         .catch(function(err){
+            console.log("読み込めませんでした\n"+err);
+          });
+});
+
+
 
 
 //親作品内容表示
@@ -242,19 +264,20 @@ function init() {
         var novel = para[0];
         var title = para[1];
         var id = para[2];
+        var A_id = para[2];
         
         document.getElementById('novelcontent').innerHTML = novel;
         document.getElementById('noveltitle').innerHTML = title;
         
         function onC_link(){
-            location.href="c_novelList.html?"+id+"";
+            location.href="c_novelList.html?"+id+'&'+A_id+"";
         };
         $("#c_link").click(onC_link);
         
         //以下評価関連
         var Evaluation = ncmb.DataStore("Evaluation");
     
-    var user = ncmb.User.getCurrentUser().userName;
+    //var user = ncmb.User.getCurrentUser().userName;
     
     //評価表示
     Evaluation.equalTo("novelId", id)
@@ -268,18 +291,18 @@ function init() {
                 console.log("読み込めませんでした\n"+err);
               });
     //ボタン無効   
-    Evaluation.equalTo("novelId", id)
-              .equalTo("userName", user)
-              .count()
-              .fetchAll()
-              .then(function(results){
-                var counter = results.count;
-                if(counter < 1) {
-                $('#evaluationBtn').removeAttr('disabled');
-            } else {
-            $('#evaluationBtn').attr('disabled', 'disabled'); 
-            }
-              });
+    // Evaluation.equalTo("novelId", id)
+    //           .equalTo("userName", user)
+    //           .count()
+    //           .fetchAll()
+    //           .then(function(results){
+    //             var counter = results.count;
+    //             if(counter < 1) {
+    //             $('#evaluationBtn').removeAttr('disabled');
+    //         } else {
+    //         $('#evaluationBtn').attr('disabled', 'disabled'); 
+    //         }
+    //           });
 };
 
 //親作品評価
@@ -301,49 +324,131 @@ function onEvaluation(){
         
     var user = ncmb.User.getCurrentUser().userName;
     
-    evaluation.set("novelId", id)
-         .set("userName", user)
-         .save()
-         .then(function(){
-          alert("評価しました。");
-         })
-         .catch(function(err){
-          alert("失敗しました" + error);
-         });
-         
-         var counter;
-         
-       $('#evaluationBtn').attr('disabled', 'disabled'); 
-       
-       var eval_count;
-       
-       //評価反映
-       Evaluation.equalTo("novelId", id)
+    var eval_count;
+    
+    Evaluation.equalTo("userName", user)
+            .equalTo("novelId", id)
+            .count()
+        .fetchAll()
+              .then(function(results){
+                eval_count = results.count;
+                if (eval_count >= 1){
+                for (var i = 0; i < results.length; i++) {
+                    var object = results[i];
+                object.delete();
+                alert("評価を削除しました。");
+                Evaluation.equalTo("novelId", id)
               .count()
               .fetchAll()
               .then(function(results){
-                eval_count = results.count; 
-                document.getElementById('evaluation').innerHTML = eval_count+1;
-              })
-              .catch(function(err){
-                console.log("読み込めませんでした\n"+err);
-              });
-    
-    　　//作品評価数更新
-       Taichel.equalTo("objectId", id)
+                var eval_counter = results.count;
+                Taichel.equalTo("objectId", id)
        .fetchAll()
        .then(function(results){
            for (var i = 0; i < results.length; i++) {
               var object = results[i];
-              object.set("evaluation", eval_count+1);
+              object.set("evaluation", eval_counter);
            return object.update();
-           };
+                }
        });
+                document.getElementById('evaluation').innerHTML = eval_counter;
+              });
+                }
+                }else if (eval_count === 0){ 
+                    evaluation.set("novelId", id)
+                            .set("userName", user)
+                            .set("A_parentId",A_id)
+                            .save()
+                            .then(function(){
+                     alert("評価しました。");
+                     Evaluation.equalTo("novelId", id)
+              .count()
+              .fetchAll()
+              .then(function(results){
+                var eval_counter = results.count;
+                Taichel.equalTo("objectId", id)
+       .fetchAll()
+       .then(function(results){
+           for (var i = 0; i < results.length; i++) {
+              var object = results[i];
+              object.set("evaluation", eval_counter);
+           return object.update();
+                }
+       });
+                document.getElementById('evaluation').innerHTML = eval_counter;
+              });
+                             });
+                      }
+                    })
+         .catch(function(err){
+           // エラー処理
+          });
+};
+
+
+//ブックマーク登録
+function onBookmark(){
+    var Bookmark = ncmb.DataStore("Bookmark");
+    var bookmark = new Bookmark();
+    
+    var url = location.search.split("?")[1];  // 行Ａ
+        var para = url.split("&");                // 行Ｂ
+        var n = para.length;
+        for (var i=0; i<n; i++) {
+            para[i] = decodeURIComponent(para[i]);         // 行Ｃ
+        }
+
+        var novel = para[0];
+        var title = para[1];
+        var id = para[2];
+    
+    var user = ncmb.User.getCurrentUser().userName;
+    var bm_count;
+    
+    Bookmark.equalTo("userName", user)
+            .equalTo("novelId", id)
+            .count()
+        .fetchAll()
+              .then(function(results){
+                bm_count = results.count;
+                if (bm_count >= 1){
+                for (var i = 0; i < results.length; i++) {
+                    var object = results[i];
+                object.delete();
+                alert("ブックマークを削除しました。");
+                    }
+                }else if (bm_count === 0){
+                    bookmark.set("novelId", id)
+                .set("userName", user)
+                .set("novel", novel)
+                .set("noveltitle",title)
+                .save()
+                .then(function(){
+                alert("ブックマークしました。");
+                   })
+                .catch(function(err){
+                 alert("ブックマークできませんでした。" + error);
+              });
+                }
+          })
+         .catch(function(err){
+           // エラー処理
+          });
 };
     
 //子作品タイトル表示   
 function init2() {
-var id = decodeURIComponent(location.search.split("?")[1]);
+var url = location.search.split("?")[1];  // 行Ａ
+        var para = url.split("&");                // 行Ｂ
+        var n = para.length;
+        for (var i=0; i<n; i++) {
+            para[i] = decodeURIComponent(para[i]);         // 行Ｃ
+        }
+        
+        var id = para[0];
+        var A_id = para[1];
+
+
 
 var Taichel_jr = ncmb.DataStore("Taichel_jr");
 
@@ -357,48 +462,17 @@ Taichel_jr.equalTo("parentId", id)
                   var cont = object.Contributor;
                   var novel = object.novel;
                   var id = object.objectId;
-                  document.getElementById("c_novelList").innerHTML+="<a href='c_novels.html?"+novel+'&'+title+'&'+id+"'>"+title+"</a>"+"<br>";
+                  document.getElementById("c_novelList").innerHTML+="<a href='c_novels.html?"+novel+'&'+title+'&'+id+'&'+A_id+"'>"+title+"</a>"+"<br>";
                 }
               })
               .catch(function(err){
                 console.log("読み込めませんでした\n"+err);
               });
               function onC_pos(){
-            location.href="c_posting.html?"+id+"";
+            location.href="c_posting.html?"+id+'&'+A_id+"";
         };
         $("#c_pos").click(onC_pos);
-        
-        
-            var zexal = location.search.split("?")[1];
-        //     var b_para = b_url.split("#");
-        //     var b_n = b_para.length;
-        //     for (var i=0; i<b_n; i++) {
-        //     b_para[i] = decodeURIComponent(b_para[i]);         // 行Ｃ
-        // }
-        
-        if(zexal == "cxyzc"){
-          Taichel_jr.equalTo("parentId", id)
-              .order("createDate",true)
-              .fetchAll()
-              .then(function(results){
-                for (var i = 0; i < results.length; i++) {
-                  var object = results[i];
-                  var title = object.noveltitle;
-                  var cont = object.Contributor;
-                  var novel = object.novel;
-                  var id = object.objectId;
-                  document.getElementById("c_novelList").innerHTML+="<li><a href='c_novels.html?"+novel+'&'+title+'&'+id+"'>"+title+"</a></li>"+"<br>";
-                }
-              })
-              .catch(function(err){
-                console.log("読み込めませんでした\n"+err);
-              });
-                
-              function onC_pos(){
-            location.href="c_posting.html?"+id+"";
-        };
-        $("#c_pos").click(onC_pos);
-        }
+
 };
 
 //子作品内容表示
@@ -413,44 +487,144 @@ function init3() {
         var novel = para[0];
         var title = para[1];
         var id = para[2];
+        var A_id = para[3];
         
         document.getElementById('c_novelcontent').innerHTML = novel;
         document.getElementById('c_noveltitle').innerHTML = title;
         
         function onC_link(){
-            location.href="c_novelList.html?"+id+"";
+            location.href="c_novelList.html?"+id+'&'+A_id+"";
         };
         $("#c_link").click(onC_link);
         
-        function onBack(){
-        var zexal = "cxyzc";
-            location.href="c_novelList.html?"+id+'#'+zexal+"";
-        };
-        $("#back").click(onBack);
+        var Evaluation = ncmb.DataStore("Evaluation");
+        
+        //評価表示
+    Evaluation.equalTo("novelId", id)
+              .count()
+              .fetchAll()
+              .then(function(results){
+                var eval_count = results.count;
+                document.getElementById('c_evaluation').innerHTML = eval_count;
+              })
+              .catch(function(err){
+                console.log("読み込めませんでした\n"+err);
+              });
     };
+    
+//子作品評価
+function onC_evaluation(){
+    var Taichel_jr = ncmb.DataStore("Taichel_jr");
+    var taichel_jr = new Taichel_jr();
+    
+    var Evaluation = ncmb.DataStore("Evaluation");
+    var evaluation = new Evaluation();
+    
+    var url = location.search.split("?")[1];  // 行Ａ
+        var para = url.split("&");                // 行Ｂ
+        var n = para.length;
+        for (var i=0; i<n; i++) {
+            para[i] = decodeURIComponent(para[i]);         // 行Ｃ
+        }
+
+        var id = para[2];
+        var A_id = para[3];
+        
+    var user = ncmb.User.getCurrentUser().userName;
+    
+    var eval_count;
+    
+    Evaluation.equalTo("userName", user)
+            .equalTo("novelId", id)
+            .count()
+        .fetchAll()
+              .then(function(results){
+                eval_count = results.count;
+                if (eval_count >= 1){
+                for (var i = 0; i < results.length; i++) {
+                    var object = results[i];
+                object.delete();
+                alert("評価を削除しました。");
+                Evaluation.equalTo("novelId", id)
+              .count()
+              .fetchAll()
+              .then(function(results){
+                var eval_counter = results.count;
+                Taichel_jr.equalTo("objectId", id)
+       .fetchAll()
+       .then(function(results){
+           for (var i = 0; i < results.length; i++) {
+              var object = results[i];
+              object.set("evaluation", eval_counter);
+           return object.update();
+                }
+       });
+                document.getElementById('c_evaluation').innerHTML = eval_counter;
+              });
+                }
+                }else if (eval_count === 0){ 
+                    evaluation.set("novelId", id)
+                            .set("userName", user)
+                            .set("A_parentId",A_id)
+                            .save()
+                            .then(function(){
+                     alert("評価しました。");
+                     Evaluation.equalTo("novelId", id)
+              .count()
+              .fetchAll()
+              .then(function(results){
+                var eval_counter = results.count;
+                Taichel_jr.equalTo("objectId", id)
+       .fetchAll()
+       .then(function(results){
+           for (var i = 0; i < results.length; i++) {
+              var object = results[i];
+              object.set("evaluation", eval_counter);
+           return object.update();
+                }
+       });
+                document.getElementById('c_evaluation').innerHTML = eval_counter;
+              });
+                             });
+                      }
+                    })
+         .catch(function(err){
+           // エラー処理
+          });
+          
+    
+};
 
 //子作品投稿
-function onC_posting()
-{
-var id = decodeURIComponent(location.search.split("?")[1]);
+function onC_posting(){
+var url = location.search.split("?")[1];  // 行Ａ
+        var para = url.split("&");                // 行Ｂ
+        var n = para.length;
+        for (var i=0; i<n; i++) {
+            para[i] = decodeURIComponent(para[i]);         // 行Ｃ
+        }
+
+        var id = para[0];
+        var A_id = para[1];
     
 var Taichel_jr = ncmb.DataStore("Taichel_jr");
-var c_novels = new Taichel_jr();
+var taichel_jr = new Taichel_jr();
 
 var c_novel = $("#c_novel").val();
 var c_contributor = ncmb.User.getCurrentUser().handlename;
 var c_noveltitle = $("#c_title").val();
 
-c_novels.set("novel", c_novel)
+taichel_jr.set("novel", c_novel)
          .set("Contributor", c_contributor)
          .set("noveltitle", c_noveltitle)
          .set("parentId", id)
+         .set("A_parentId", A_id)
          .save()
          .then(function(){
           alert("投稿しました。");
           // $('textarea').val("");
           // $('input[type="text"]').val(""); 
-          location.href="c_novelList.html?"+id+"";
+          location.href="home.html";
          })
          .catch(function(err){
           alert("失敗しました" + error);
@@ -495,6 +669,7 @@ var rightPart = strOriginal.substr(posCursole, strOriginal.length);
 //文字列を結合して、テキストエリアに出力
 document.getElementById('c_novel').value = leftPart + strInsert + rightPart;
 }
+
 
 //評価
 // function onEvaluation(){
