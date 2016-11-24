@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src *; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+    <link rel="stylesheet" href="components/loader.css">
+    <script src="components/loader.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <script>ons.bootstrap();</script>
+    <script src="js/ncmb-latest.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/cssua.min.js"></script>
+</head>
+<body>
+    
+    <div class="main">
+    
+    <ons-page>
+    
+    <div class="navigation-bar">
+  <div class="navigation-bar__left">
+  <div class="backbtn">
+    <i class="fa fa-angle-left fa-3x" aria-hidden="true" onclick="history.back()"></i>
+  </div>
+    </ons-page>
+  </div>
+
+  <div class="navigation-bar__center">
+      <font color="white">
+    新規登録
+    </font>
+  </div>
+
+  <div class="navigation-bar__right">
+  </div>
+</div>
+        
+    <div class="login-form">
+    <p>
+        <input type="text" id="reg_username" name="id" placeholder="ID" class="text-input--underbar" autocapitalize="off">
+    </p>
+    <p>
+        <input type="text" id="reg_handlename" name="handlename" placeholder="ニックネーム" class="text-input--underbar">
+    </p>
+    <p>
+        <input type="password" id="reg_password" name="pass" placeholder="パスワード" class="text-input--underbar">
+    </p>
+    <p>
+        <input type="password" id="reg_password2" name="pass" placeholder="再度入力して下さい" class="text-input--underbar">
+    </p>
+    <p>
+        <input type="email" id="reg_mail" name="mail" placeholder="メールアドレス" class="text-input--underbar">
+    </p>
+    </div>
+    
+    <a href="#" target="_blank">利用規約</a>
+    <p>登録ボタンを押した場合、利用規約に同意したものとみなします。</p>
+    <ons-button id="RegisterBtn">登録</ons-button>
+    <br />
+    <br />
+    </ons-page>
+</div>
+</body>
+</html>

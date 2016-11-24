@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src * data:; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+    <script src="components/loader.js"></script>
+    <link rel="stylesheet" href="components/loader.css">
+    <link rel="stylesheet" href="css/styles.css"> 
+    <script>ons.bootstrap();</script>
+    <script src="js/ncmb-latest.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/cssua.min.js"></script>
+</head>
+
+<body>
+  <div class="main">
+    <ons-page>
+        <div class="navigation-bar">
+        <div class="navigation-bar__center">
+            <font color="white">
+                ログイン
+            </font>
+        </div>
+    </div>
+        
+        <div class="pic">
+            <img src="img/Logo.png" alt="Logo" width="80%">
+        </div>
+        
+        <div class="login-form">
+            <input type="text" id="login_username"class="text-input--underbar" placeholder="ID" value="" autocapitalize="off">
+            <input type="password" id="login_password" class="text-input--underbar" placeholder="Password" value="">
+            <br><br>
+            <ons-button id="LoginBtn" modifier="large" class="login-button">ログイン</ons-button></br>
+            <ons-button id="NewBtn" modifier="large" class="login-button"onclick="location.href='register.html'">新規登録</ons-button>
+            <br><br>
+            <ons-button modifier="quiet" class="forgot-password">Forgot password?</ons-button>
+        </div>   
+    </ons-page>
+    </div>
+  </body>
+</html>

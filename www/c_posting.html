@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src *; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+    <link rel="stylesheet" href="components/loader.css">
+    <link rel="stylesheet" href="css/styles.css"> 
+    <script src="components/loader.js"></script>
+    <script>ons.bootstrap();</script>
+    <script src="js/ncmb-latest.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/cssua.min.js"></script>
+</head>
+
+<body>
+<div class="main">
+
+<ons-page>
+    <ons-sliding-menu var="app.menu" main-page="homepage.html" menu-page="menu.html" max-slide-distance="200px" type="reveal" side="right"></ons-sliding-menu>
+    <ons-template id="homepage.html">
+        <ons-page modifier="material">
+        <ons-toolbar modifier="material">
+            <div class="center">
+                <font color="white">
+                    選択肢投稿
+                </font>
+            </div>
+            <div class="left">
+                <i class="fa fa-angle-left fa-3x" aria-hidden="true" onclick="history.back()"></i>
+            </div>
+            <div class="right">
+                <ons-toolbar-button modifier="material" ng-click="app.menu.toggleMenu()">
+                    <i class="fa fa-bars" aria-hidden="true"></i>
+                </ons-toolbar-button>
+            </div>
+        </ons-toolbar> 
+    
+        <h3>選択肢名</h3>
+        <input type="text" id="c_title">
+        <h3>内容</h3>
+        <textarea id="c_novel" name="contents" rows="15" cols="40"></textarea>
+        </br>
+        <ons-button id="c_newLine">改行</ons-button> 
+        <ons-button id="c_posting">投稿</ons-button>
+        
+    </ons-template>
+</ons-page>
+
+<ons-template id="menu.html">
+  <ons-list>
+    <a href="home.html" style="text-decoration:none">     <!--本当はaタグ使いたくない-->
+        <ons-list-item modifier="chevron" onclick="menu.setMainPage('home.html', {closeMenu: true})">  <!--SPAじゃないから動かない-->
+            TOPページ
+        </ons-list-item>
+    </a>
+    <a href="mypage.html" style="text-decoration:none">     <!--本当はaタグ使いたくない-->
+        <ons-list-item modifier="chevron" onclick="menu.setMainPage('mypage.html', {closeMenu: true})">  <!--SPAじゃないから動かない-->
+            マイページ
+        </ons-list-item>
+    </a>
+    <a href="index.html" style="text-decoration:none">
+        <ons-list-item modifier="chevron" onclick="menu.setMainPage('index.html', {closeMenu: true})">
+            禁書目録？
+        </ons-list-item>
+    </a>
+    <ons-list-item modifier="chevron" id="YesBtn_logout">
+        ログアウト
+    </ons-list-item>
+  </ons-list>
+</ons-template>
+
+</div>
+</body>
+</html>
