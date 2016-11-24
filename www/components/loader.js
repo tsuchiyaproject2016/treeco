@@ -33479,9 +33479,7 @@ exports.createContext = Script.createContext = function (context) {
 },{"indexof":302}]},{},[7]);
 
 /*** <End:ncmb LoadJs:"components/ncmb/ncmb.min.js"> ***/
-/*** <End:ncmb> ***/
-
-/*** <Start:monaca-jquery> ***/
+/*** <End:ncmb> ***//*** <Start:monaca-jquery> ***/
 /*** <Start:monaca-jquery LoadJs:"components/monaca-jquery/jquery.js"> ***/
 /*!
  * jQuery JavaScript Library v2.0.3
